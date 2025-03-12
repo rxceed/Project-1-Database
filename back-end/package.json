@@ -1,0 +1,28 @@
+{
+  "name": "back-end-project-1-basdat",
+  "version": "1.0.0",
+  "description": "Back end project 1 basis data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "nodemon index.ts"
+  },
+  "author": "Muhammad Risang Radityatama",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.14.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/pg": "^8.11.11",
+    "@types/sequelize": "^4.28.20",
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.11",
+    "typescript": "^5.8.2"
+  }
+}
