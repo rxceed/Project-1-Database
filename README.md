@@ -1,2 +1,2 @@
 # Project 1 Database
-Lorem ipsum
+Back end untuk project 1 mata kuliah basis data
