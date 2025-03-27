@@ -17,7 +17,7 @@ services:
     environment:
       POSTGRES_PASSWORD: admin
     ports:
-      - 4000`:5432
+      - 5433:5432
 
 #  adminer:
  #   image: adminer

@@ -1,7 +1,13 @@
 import express from "express";
+import { Sequelize } from "sequelize";
+import 'dotenv/config';
 
 const app = express();
 
+//Tes koneksi db
+
+
+//Hea
 app.get("/", (req, res)=>{
     res.send("tes");
 })
