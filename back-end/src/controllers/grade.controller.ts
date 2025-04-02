@@ -39,7 +39,8 @@ export const alterGrade = async (req: Request, res: Response, next: NextFunction
     {
         const data: gradeInterface = req.body;
         const grade: string = req.query.grade as string;
-        const {error, value} = gradeSchema.validate(data);
+        const alterGradeSchema = gradeSchema.fork("grade", (schema) => schema.optional());
+        const {error, value} = alterGradeSchema.validate(data);
         if(error) throw new CustomError(error.message, 400, error.stack);
         if(!(await checkIfGradeExists(grade))) throw new CustomError("grade does not exist", 404);
         const result = await alterGradeService(grade, data);

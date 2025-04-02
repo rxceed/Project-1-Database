@@ -42,42 +42,15 @@ export const insertNewGradeService = async (gradeData: gradeInterface)=>{
 export const alterGradeService = async (grade: string, gradeData: gradeInterface)=>{
     try
     {
-        let sql: string;
-        if(gradeData.grade === null)
-        {
-            if(gradeData.upperLimit === null)
-            {
-                sql = format("UPDATE grades SET lower_limit = %L WHERE grade = %L", gradeData.lowerLimit, grade);
-            }
-            else if(gradeData.lowerLimit === null)
-            {
-                sql = format("UPDATE grades SET upper_limit = %L WHERE grade = %L", gradeData.upperLimit, grade);
-            }
-            else
-            {
-                sql = format("UPDATE grades SET upper_limit = %L, lower_limit = %L WHERE grade = %L", gradeData.upperLimit, gradeData.lowerLimit, grade);
-            }
-        }
-        else
-        {
-            if(gradeData.upperLimit === null && gradeData.lowerLimit ===null)
-            {
-                sql = format("UPDATE grades SET grade = %L WHERE grade = %L", gradeData.grade, grade);
-            }
-            else if(gradeData.upperLimit === null)
-            {
-                sql = format("UPDATE grades SET grade = %L, lower_limit = %L WHERE grade = %L", gradeData.grade, gradeData.lowerLimit, grade);
-            }
-            else if(gradeData.lowerLimit === null)
-            {
-                sql = format("UPDATE grades SET grade = %L, upper_limit = %L WHERE grade = %L", gradeData.grade, gradeData.upperLimit, grade);
-            }
-            else
-            {
-                sql = format("UPDATE grades SET grade = %L, upper_limit = %L, lower_limit = %L WHERE grade = %L", gradeData.grade, gradeData.upperLimit, gradeData.lowerLimit, grade);
-            }
-            return await query(sql);
-        }
+        const retrieveDataSQL: string = format("SELECT * FROM grades WHERE grade = %L", grade);
+        const retrieveResult = await query(retrieveDataSQL);
+        const oldData = retrieveResult?.rows[0];
+        let newData: gradeInterface = {...gradeData};
+        if(!newData.grade) newData.grade = oldData.grade;
+        if(!newData.upperLimit) newData.upperLimit = oldData.upper_limit;
+        if(!newData.lowerLimit) newData.lowerLimit = oldData.lower_limit;
+        const sql: string = format("UPDATE grades SET grade = %L, upper_limit = %L, lower_limit = %L WHERE grade = %L", newData.grade, newData.upperLimit, newData.lowerLimit, grade);
+        return await query(sql);
     }
     catch(error)
     {
