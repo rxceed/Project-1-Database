@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "nodemon index.ts"
+    "start:dev": "nodemon ./src/index.ts"
   },
   "author": "Muhammad Risang Radityatama",
   "license": "ISC",
   "dependencies": {
     "express": "^4.21.2",
+    "joi": "^17.13.3",
     "pg": "^8.14.0",
     "pg-format": "^1.0.4",
     "pg-hstore": "^2.3.4",
