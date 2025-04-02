@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { checkIfGradeExists, insertNewGradeService, alterGradeService, deleteGradeService, getAllGradesService, deleteAllGradesService } from "../services";
-import { alterGradeSchema, gradeSchema } from "../utils";
+import { gradeSchema } from "../utils/validators";
 import { alterGradeInterface, gradeInterface } from "../models";
 import { CustomError } from "../middlewares";
 
@@ -37,9 +37,9 @@ export const insertNewGrade = async (req: Request, res: Response, next: NextFunc
 export const alterGrade = async (req: Request, res: Response, next: NextFunction)=>{
     try
     {
-        const data: alterGradeInterface = req.body;
+        const data: gradeInterface = req.body;
         const grade: string = req.query.grade as string;
-        const {error, value} = alterGradeSchema.validate(data);
+        const {error, value} = gradeSchema.validate(data);
         if(error) throw new CustomError(error.message, 400, error.stack);
         if(!(await checkIfGradeExists(grade))) throw new CustomError("grade does not exist", 404);
         const result = await alterGradeService(grade, data);

@@ -5,9 +5,3 @@ export const gradeSchema = joi.object({
     upperLimit: joi.number(),
     lowerLimit: joi.number()
 });
-
-export const alterGradeSchema = joi.object({
-    newGrade: joi.string(),
-    newUpperLimit: joi.number(),
-    newLowerLimit: joi.number()
-})

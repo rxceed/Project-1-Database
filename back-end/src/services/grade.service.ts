@@ -18,8 +18,7 @@ export const checkIfGradeExists = async (grade: string)=>{
 export const getAllGradesService = async () =>{
     try
     {
-        let sql: string;
-        sql = format("SELECT * FROM grades");
+        const sql: string = format("SELECT * FROM grades");
         return await query(sql);
     }
     catch(error)
@@ -31,8 +30,7 @@ export const getAllGradesService = async () =>{
 export const insertNewGradeService = async (gradeData: gradeInterface)=>{
     try
     {
-        let sql: string;
-        sql = format("INSERT INTO grades(grade, upper_limit, lower_limit) VALUES (%L, %L, %L)", gradeData.grade, gradeData.upperLimit, gradeData.lowerLimit);
+        const sql: string = format("INSERT INTO grades(grade, upper_limit, lower_limit) VALUES (%L, %L, %L)", gradeData.grade, gradeData.upperLimit, gradeData.lowerLimit);
         return await query(sql);
     }
     catch(error)
@@ -41,42 +39,42 @@ export const insertNewGradeService = async (gradeData: gradeInterface)=>{
     }
 }
 
-export const alterGradeService = async (grade: string, alterGradeData: alterGradeInterface)=>{
+export const alterGradeService = async (grade: string, gradeData: gradeInterface)=>{
     try
     {
         let sql: string;
-        if(alterGradeData.newGrade === null)
+        if(gradeData.grade === null)
         {
-            if(alterGradeData.newUpperLimit === null)
+            if(gradeData.upperLimit === null)
             {
-                sql = format("UPDATE grades SET lower_limit = %L WHERE grade = %L", alterGradeData.newLowerLimit, grade);
+                sql = format("UPDATE grades SET lower_limit = %L WHERE grade = %L", gradeData.lowerLimit, grade);
             }
-            else if(alterGradeData.newLowerLimit === null)
+            else if(gradeData.lowerLimit === null)
             {
-                sql = format("UPDATE grades SET upper_limit = %L WHERE grade = %L", alterGradeData.newUpperLimit, grade);
+                sql = format("UPDATE grades SET upper_limit = %L WHERE grade = %L", gradeData.upperLimit, grade);
             }
             else
             {
-                sql = format("UPDATE grades SET upper_limit = %L, lower_limit = %L WHERE grade = %L", alterGradeData.newUpperLimit, alterGradeData.newLowerLimit, grade);
+                sql = format("UPDATE grades SET upper_limit = %L, lower_limit = %L WHERE grade = %L", gradeData.upperLimit, gradeData.lowerLimit, grade);
             }
         }
         else
         {
-            if(alterGradeData.newUpperLimit === null && alterGradeData.newLowerLimit ===null)
+            if(gradeData.upperLimit === null && gradeData.lowerLimit ===null)
             {
-                sql = format("UPDATE grades SET grade = %L WHERE grade = %L", alterGradeData.newGrade, grade);
+                sql = format("UPDATE grades SET grade = %L WHERE grade = %L", gradeData.grade, grade);
             }
-            else if(alterGradeData.newUpperLimit === null)
+            else if(gradeData.upperLimit === null)
             {
-                sql = format("UPDATE grades SET grade = %L, lower_limit = %L WHERE grade = %L", alterGradeData.newGrade, alterGradeData.newLowerLimit, grade);
+                sql = format("UPDATE grades SET grade = %L, lower_limit = %L WHERE grade = %L", gradeData.grade, gradeData.lowerLimit, grade);
             }
-            else if(alterGradeData.newLowerLimit === null)
+            else if(gradeData.lowerLimit === null)
             {
-                sql = format("UPDATE grades SET grade = %L, upper_limit = %L WHERE grade = %L", alterGradeData.newGrade, alterGradeData.newUpperLimit, grade);
+                sql = format("UPDATE grades SET grade = %L, upper_limit = %L WHERE grade = %L", gradeData.grade, gradeData.upperLimit, grade);
             }
             else
             {
-                sql = format("UPDATE grades SET grade = %L, upper_limit = %L, lower_limit = %L WHERE grade = %L", alterGradeData.newGrade, alterGradeData.newUpperLimit, alterGradeData.newLowerLimit, grade);
+                sql = format("UPDATE grades SET grade = %L, upper_limit = %L, lower_limit = %L WHERE grade = %L", gradeData.grade, gradeData.upperLimit, gradeData.lowerLimit, grade);
             }
             return await query(sql);
         }

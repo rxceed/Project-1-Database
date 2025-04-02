@@ -1,5 +1,3 @@
-import { NumberSchema } from "joi"
-
 export interface gradeInterface{
     grade: string,
     upperLimit?: number,
