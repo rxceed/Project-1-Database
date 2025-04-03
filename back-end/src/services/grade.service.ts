@@ -1,6 +1,6 @@
 import { query } from "../db";
 import format from "pg-format";
-import { alterGradeInterface, gradeInterface } from "../models";
+import { gradeInterface } from "../models";
 
 export const checkIfGradeExists = async (grade: string)=>{
     const sql: string = format("SELECT grade FROM grades WHERE grade = %L", grade);
@@ -49,7 +49,12 @@ export const alterGradeService = async (grade: string, gradeData: gradeInterface
         if(!newData.grade) newData.grade = oldData.grade;
         if(!newData.upperLimit) newData.upperLimit = oldData.upper_limit;
         if(!newData.lowerLimit) newData.lowerLimit = oldData.lower_limit;
-        const sql: string = format("UPDATE grades SET grade = %L, upper_limit = %L, lower_limit = %L WHERE grade = %L", newData.grade, newData.upperLimit, newData.lowerLimit, grade);
+        const sql: string = format(
+            "UPDATE grades SET grade = %L, upper_limit = %L, lower_limit = %L WHERE grade = %L", 
+            newData.grade, 
+            newData.upperLimit, 
+            newData.lowerLimit, 
+            grade);
         return await query(sql);
     }
     catch(error)
