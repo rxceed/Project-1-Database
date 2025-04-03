@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { checkIfGradeExists, insertNewGradeService, alterGradeService, deleteGradeService, getAllGradesService, deleteAllGradesService } from "../services";
 import { gradeSchema } from "../utils/validators";
-import { alterGradeInterface, gradeInterface } from "../models";
+import { gradeInterface } from "../models";
 import { CustomError } from "../middlewares";
 
 export const getAllGrades = async (req: Request, res: Response, next: NextFunction)=>{

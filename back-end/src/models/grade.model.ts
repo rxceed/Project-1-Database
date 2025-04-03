@@ -3,9 +3,3 @@ export interface gradeInterface{
     upperLimit?: number,
     lowerLimit?: number
 }
-
-export interface alterGradeInterface{
-    newGrade?: string,
-    newUpperLimit?: number,
-    newLowerLimit?: number
-}
