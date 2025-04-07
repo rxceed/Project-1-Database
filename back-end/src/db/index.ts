@@ -31,7 +31,7 @@ export const dbSetup = async ()=>
 {
     try 
     {
-        await pool.query(
+        return await pool.query(
             "CREATE TABLE IF NOT EXISTS projects (project_id SERIAL PRIMARY KEY, project_name VARCHAR(255) NOT NULL, grading_date DATE, grade VARCHAR(32), status VARCHAR(255));"+" "+
             "CREATE TABLE IF NOT EXISTS grades (grade VARCHAR(32) PRIMARY KEY, upper_limit INT, lower_limit INT);"+" "+
             "CREATE TABLE IF NOT EXISTS chapters (chapter_id SERIAL PRIMARY KEY, project_id INTEGER NOT NULL, chapter_name VARCHAR(255) NOT NULL, chapter_weight INT NOT NULL, CONSTRAINT fk_project_id FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);"+" "+
@@ -40,6 +40,19 @@ export const dbSetup = async ()=>
         );
     } 
     catch (error) {
+        console.error("Error occureed:", error);
+    }
+}
+
+export const dbDrop = async ()=>{
+    try
+    {
+        return await pool.query(
+            "DROP TABLE IF EXISTS projects, grades, chapters, grading_parameters, sub_aspects CASCADE"
+        );
+    }
+    catch(error)
+    {
         console.error("Error occureed:", error);
     }
 }
