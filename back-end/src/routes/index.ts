@@ -5,8 +5,8 @@ import dbRoutes from "./db.route";
 
 const router = express.Router();
 
-router.use("api/db", dbRoutes);
-router.use("api/grades", gradeRoutes);
-router.use("api/projects", projectRoutes);
+router.use("/api/db", dbRoutes);
+router.use("/api/grades", gradeRoutes);
+router.use("/api/projects", projectRoutes);
 
 export default router;
