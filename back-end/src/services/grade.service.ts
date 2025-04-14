@@ -27,6 +27,18 @@ export const getAllGradesService = async () =>{
     }
 }
 
+export const getGradeByGradeCharService = async (gradeChar: string)=>{
+    try
+    {
+        const sql: string = format("SELECT * FROM grades WHERE grade = %L", gradeChar);
+        return await query(sql);
+    }
+    catch(error)
+    {
+        console.error("Error occured:", error);
+    }
+}
+
 export const insertNewGradeService = async (gradeData: gradeInterface)=>{
     try
     {

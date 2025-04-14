@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { checkIfGradeExists, insertNewGradeService, alterGradeService, deleteGradeService, getAllGradesService, deleteAllGradesService } from "../services";
+import { checkIfGradeExists, insertNewGradeService, alterGradeService, deleteGradeService, getAllGradesService, deleteAllGradesService, getGradeByGradeCharService } from "../services";
 import { gradeSchema } from "../utils/validators";
 import { gradeInterface } from "../models";
 import { CustomError } from "../middlewares";
@@ -10,6 +10,22 @@ export const getAllGrades = async (req: Request, res: Response, next: NextFuncti
         const result = await getAllGradesService();
         if(!result) throw new CustomError("internal database error");
         res.status(200).json(result?.rows);
+    }
+    catch(error)
+    {
+        next(error);
+    }
+}
+
+export const getGradeByGradeChar = async(req: Request, res: Response, next: NextFunction)=>{
+    try
+    {
+        const gradeChar = req.query.grade as string;
+        if(!gradeChar) return res.status(302).redirect("grades/all");
+        const result = await getGradeByGradeCharService(gradeChar);
+        if(!result) throw new CustomError("internal database error");
+        if(!(await checkIfGradeExists(gradeChar))) res.status(200).json({message: "no grade found"});
+        else res.status(200).json(result.rows);
     }
     catch(error)
     {
