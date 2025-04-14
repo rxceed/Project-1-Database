@@ -1,9 +1,9 @@
-import { getAllProjects, getProjectByID, insertNewGrade, alterProject, deleteAllProjects, deleteProjectByID } from "../controllers";
+import { getAllProjects, getProjectByID, alterProject, deleteAllProjects, deleteProjectByID, insertNewProject } from "../controllers";
 import express from "express";
 
 const router = express.Router();
 
-router.route("/").get(getProjectByID).post(insertNewGrade).patch(alterProject).delete(deleteProjectByID);
+router.route("/").get(getProjectByID).post(insertNewProject).patch(alterProject).delete(deleteProjectByID);
 router.route("/all").get(getAllProjects);
 router.route("/purge").delete(deleteAllProjects);
 

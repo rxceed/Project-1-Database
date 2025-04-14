@@ -3,10 +3,16 @@ import format from "pg-format";
 import { projectInterface } from "../models"
 
 export const checkIfProjectIDExist = async (id: number)=>{
-    const sql: string = format("SELECT project_id FROM grades WHERE project_id = %L", id);
+    const sql: string = format('SELECT project_id FROM projects WHERE project_id = %L', id);
     const result = await query(sql);
-    if(result?.rowCount) return true;
-    else return false;
+    if(result?.rowCount) 
+    {
+       return true;
+    }
+    else 
+    {
+        return false;
+    }
 }
 
 export const getAllProjectsService = async () =>{

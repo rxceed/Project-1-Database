@@ -21,6 +21,7 @@ export const getProjectByID = async (req: Request, res: Response, next: NextFunc
     try
     {
         const id = parseInt(req.query.project_id as string);
+        if(!id) return res.status(302).redirect("projects/all");
         const result = await getProjectByIDService(id);
         if(!result) throw new CustomError("internal database error");
         if(!(await checkIfProjectIDExist(id))) res.status(200).json({message: "no project found"});
