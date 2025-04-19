@@ -35,7 +35,6 @@ export const getChapterByID_andOr_ProjectID = async (req: Request, res: Response
         }
         else if(!chapterID && projectID)
         {
-            const projectID = parseInt(req.query.project_id as string);
             if(!(await checkIfProjectIDExist(projectID))) throw new CustomError("project does not exist", 404);
             const result = await getAllChaptersByProjectIDService(projectID);
             if(!result) throw new CustomError("internal database error");
