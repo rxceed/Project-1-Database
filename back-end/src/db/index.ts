@@ -36,7 +36,7 @@ export const dbSetup = async ()=>
             "CREATE TABLE IF NOT EXISTS grades (grade VARCHAR(32) PRIMARY KEY, upper_limit INT, lower_limit INT);"+" "+
             "CREATE TABLE IF NOT EXISTS chapters (chapter_id SERIAL PRIMARY KEY, project_id INTEGER NOT NULL, chapter_name VARCHAR(255) NOT NULL, chapter_weight INT NOT NULL, CONSTRAINT fk_project_id FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);"+" "+
             "CREATE TABLE IF NOT EXISTS grading_parameters (parameter_id SERIAL PRIMARY KEY, chapter_id INTEGER NOT NULL, parameter_name VARCHAR(255) NOT NULL, CONSTRAINT fk_chapter_id FOREIGN KEY(chapter_id) REFERENCES chapters(chapter_id) ON DELETE CASCADE);"+" "+
-            "CREATE TABLE IF NOT EXISTS sub_aspects (subaspect_id SERIAL PRIMARY KEY, parameter_id INTEGER NOT NULL, mistakes INTEGER NOT NULL DEFAULT '0', CONSTRAINT fk_parameter_id FOREIGN KEY(parameter_id) REFERENCES grading_parameters(parameter_id) ON DELETE CASCADE);"
+            "CREATE TABLE IF NOT EXISTS sub_aspects (subaspect_id SERIAL PRIMARY KEY, parameter_id INTEGER NOT NULL, sub_aspect_name VARCHAR(255) NOT NULL, mistakes INTEGER NOT NULL DEFAULT '0', CONSTRAINT fk_parameter_id FOREIGN KEY(parameter_id) REFERENCES grading_parameters(parameter_id) ON DELETE CASCADE);"
         );
     } 
     catch (error) {
