@@ -70,13 +70,14 @@ export const getSubAspectByID_and_ParamIDService = async (subASpectID: number, p
     }
 }
 
-export const insertNewSubAspectService = async (subAsectData: subAspectInterface)=>{
+export const insertNewSubAspectService = async (subAspectData: subAspectInterface)=>{
     try
     {
+        if(!subAspectData.mistakes) subAspectData.mistakes = 0;
         const sql: string = format("INSERT INTO sub_aspects(parameter_id, sub_aspect_name, mistakes) VALUES(%L, %L, %L)",
-            subAsectData.paramID,
-            subAsectData.name,
-            subAsectData.mistakes
+            subAspectData.paramID,
+            subAspectData.name,
+            subAspectData.mistakes
         );
         return await query(sql);
     }

@@ -65,6 +65,7 @@ export const insertGradingParam = async (req: Request, res: Response, next: Next
         const data: gradingParamsInterface = req.body;
         const {error, value} = gradingParamsSchema.validate(data);
         if(error) throw new CustomError(error.message, 400, error.stack);
+        if(!(await checkIfChapterExist(data.chapterID))) throw new CustomError("parent chapter does not exist", 400);
         const result = await insertGradingParamService(data);
         if(!result) throw new CustomError("internal database error");
         res.status(201).json({Command: result.command, Rows: result.rowCount});
@@ -78,9 +79,9 @@ export const insertGradingParam = async (req: Request, res: Response, next: Next
 export const alterGradingParam = async (req: Request, res: Response, next: NextFunction)=>{
     try
     {
-        const paramID = parseInt(req.query.paramter_id as string);
+        const paramID = parseInt(req.query.parameter_id as string);
         const data: gradingParamsInterface = req.body;
-        const alterGradingParamsSchema = gradingParamsSchema.fork("name", (schema)=>schema.optional());
+        const alterGradingParamsSchema = gradingParamsSchema.fork(["chapterID", "name"], (schema)=>schema.optional());
         const {error, value} = alterGradingParamsSchema.validate(data);
         if(error) throw new CustomError(error.message, 400, error.stack);
         const result = await alterGradingParamService(paramID, data);

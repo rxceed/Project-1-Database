@@ -43,7 +43,7 @@ export const getChapterByID_andOr_ProjectID = async (req: Request, res: Response
         else if(chapterID && projectID)
         {
             if(!(await checkIfChapterExist(chapterID))) throw new CustomError("chapter does not exist", 404);
-            if(!(await checkIfProjectIDExist(projectID))) throw new CustomError("chapter does not exist", 404);
+            if(!(await checkIfProjectIDExist(projectID))) throw new CustomError("project does not exist", 404);
             const result = await getChapterByID_and_ProjectIDService(chapterID, projectID);
             if(!result) throw new CustomError("internal database error");
             res.status(200).json(result.rows);
@@ -66,6 +66,7 @@ export const insertNewChapter = async (req: Request, res: Response, next: NextFu
        const data: chapterInterface = req.body;
        const {error, value} = chapterSchema.validate(data);
        if(error) throw new CustomError(error.message, 400, error.stack);
+       if(!(await checkIfProjectIDExist(data.projectID))) throw new CustomError("parent project does not exist", 400);
        const result = await insertNewChapterService(data);
        if(!result) throw new CustomError("internal database error");
        res.status(201).json({command: result.command, rows: result.rowCount});
@@ -81,7 +82,7 @@ export const alterChapter = async (req: Request, res: Response, next: NextFuncti
     {
         const chapterID = parseInt(req.query.chapter_id as string);
         const data: chapterInterface = req.body;
-        const alterChapterSchema = chapterSchema.fork(["projectsID", "name", "weight"], (schema)=>schema.optional());
+        const alterChapterSchema = chapterSchema.fork(["projectID", "name", "weight"], (schema)=>schema.optional());
         const {error, value} = alterChapterSchema.validate(data);
         if(error) throw new CustomError(error.message, 400, error.stack);
         if(!(await checkIfChapterExist(chapterID))) throw new CustomError("chappter does not exist", 404);
