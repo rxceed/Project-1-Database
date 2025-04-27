@@ -3,17 +3,6 @@ import format from "pg-format";
 import { gradingParamsSchema } from "../utils/validators";
 import { gradingParamsInterface } from "../models";
 
-export const Service = async ()=>{
-    try
-    {
-
-    }
-    catch(error)
-    {
-        console.error("Error occured:", error);
-    }
-}
-
 export const checkIfGradingParamExists = async (paramID: number)=>{
     try
     {
