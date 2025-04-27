@@ -32,7 +32,7 @@ export const dbSetup = async ()=>
     try 
     {
         return await pool.query(
-            "CREATE TABLE IF NOT EXISTS projects (project_id SERIAL PRIMARY KEY, project_name VARCHAR(255) NOT NULL, grading_date DATE, grade VARCHAR(32), status VARCHAR(255));"+" "+
+            "CREATE TABLE IF NOT EXISTS projects (project_id SERIAL PRIMARY KEY, project_name VARCHAR(255) NOT NULL, grading_date TIMESTAMPTZ, grade VARCHAR(32), status VARCHAR(255));"+" "+
             "CREATE TABLE IF NOT EXISTS grades (grade VARCHAR(32) PRIMARY KEY, upper_limit INT, lower_limit INT);"+" "+
             "CREATE TABLE IF NOT EXISTS chapters (chapter_id SERIAL PRIMARY KEY, project_id INTEGER NOT NULL, chapter_name VARCHAR(255) NOT NULL, chapter_weight INT NOT NULL, CONSTRAINT fk_project_id FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);"+" "+
             "CREATE TABLE IF NOT EXISTS grading_parameters (parameter_id SERIAL PRIMARY KEY, chapter_id INTEGER NOT NULL, parameter_name VARCHAR(255) NOT NULL, CONSTRAINT fk_chapter_id FOREIGN KEY(chapter_id) REFERENCES chapters(chapter_id) ON DELETE CASCADE);"+" "+
