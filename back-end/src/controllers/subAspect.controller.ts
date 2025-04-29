@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { getAllSubAspectsService, getAllSubAspectsByParamIDService, getSubAspectsByIDService, getSubAspectByID_and_ParamIDService,
-    insertNewSubAspectService, alterSubAspectService, deleteAllSubAspectsByParamIDService, deleteSubAspectByIDService, checkIfSubAspectExists
+    insertNewSubAspectService, alterSubAspectService, deleteAllSubAspectsByParamIDService, deleteSubAspectByIDService, checkIfSubAspectExists,
  } from "../services";
 import { CustomError } from "../middlewares";
 import { subAspectInterface } from "../models";
@@ -86,7 +86,7 @@ export const alterSubAspect = async (req: Request, res: Response, next: NextFunc
         if(!(await checkIfSubAspectExists(subAspectID))) throw new CustomError("sub aspect does not exist", 404);
         const result = await alterSubAspectService(subAspectID, data);
         if(!result) throw new CustomError("internal database error");
-        res.status(201).json({command: result?.command, rows: result?.rowCount})
+        res.status(201).json({command: result.command, rows: result.rowCount})
     }
     catch(error)
     {

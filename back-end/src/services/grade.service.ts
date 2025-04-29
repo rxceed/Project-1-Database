@@ -42,6 +42,8 @@ export const getGradeByGradeCharService = async (gradeChar: string)=>{
 export const insertNewGradeService = async (gradeData: gradeInterface)=>{
     try
     {
+        if(!gradeData.lowerLimit) gradeData.lowerLimit = 0;
+        if(!gradeData.upperLimit) gradeData.upperLimit = 90;
         const sql: string = format("INSERT INTO grades(grade, upper_limit, lower_limit) VALUES (%L, %L, %L)", gradeData.grade, gradeData.upperLimit, gradeData.lowerLimit);
         return await query(sql);
     }
@@ -59,8 +61,8 @@ export const alterGradeService = async (grade: string, gradeData: gradeInterface
         const oldData = retrieveResult?.rows[0];
         let newData: gradeInterface = {...gradeData};
         if(!newData.grade) newData.grade = oldData.grade;
-        if(!newData.upperLimit) newData.upperLimit = oldData.upper_limit;
-        if(!newData.lowerLimit) newData.lowerLimit = oldData.lower_limit;
+        if(!newData.upperLimit) newData.upperLimit = parseInt(oldData.upper_limit);
+        if(!newData.lowerLimit) newData.lowerLimit = parseInt(oldData.lower_limit);
         const sql: string = format(
             "UPDATE grades SET grade = %L, upper_limit = %L, lower_limit = %L WHERE grade = %L", 
             newData.grade, 

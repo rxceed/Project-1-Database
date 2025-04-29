@@ -1,5 +1,6 @@
 export interface chapterInterface{
     projectID: number,
     name: string,
-    weight: number
+    weight: number,
+    chapterScore: number
 }

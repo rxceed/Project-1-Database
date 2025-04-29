@@ -1,6 +1,8 @@
 import { query } from "../db";
-import { subAspectInterface } from "../models";
+import { gradingParamsInterface, subAspectInterface } from "../models";
 import format from "pg-format";
+import { alterGradingParamService, getGradingParamByIDService } from "./gradingParameters.service";
+import { totalMistakesByParamService } from "./aggregates.service";
 
 export const checkIfSubAspectExists = async (subASpectID: number)=>{
     try
@@ -79,7 +81,17 @@ export const insertNewSubAspectService = async (subAspectData: subAspectInterfac
             subAspectData.name,
             subAspectData.mistakes
         );
-        return await query(sql);
+
+        const returnVal = await query(sql);
+
+        const paramID = subAspectData.paramID;
+        const retrieveParamData = await getGradingParamByIDService(paramID);
+        const oldParamData = retrieveParamData?.rows[0];
+        const newTotalMistakesInParam = await totalMistakesByParamService(paramID);
+        const newParamData: gradingParamsInterface = {chapterID: oldParamData.chapter_id, name: oldParamData.parameter_name, totalMistakes: newTotalMistakesInParam?.rows[0].total_mistakes as number};
+        await alterGradingParamService(paramID, newParamData);
+
+        return returnVal;
     }
     catch(error)
     {
@@ -95,11 +107,21 @@ export const alterSubAspectService = async (subAspectID: number, subAspectData: 
         const oldData = retrievedData?.rows[0];
         let newData = {...subAspectData};
         if(!newData.name) newData.name = oldData.sub_aspect_name;
-        if(!newData.mistakes) newData.mistakes = oldData.mistakes;
+        if(!newData.mistakes) newData.mistakes = parseInt(oldData.mistakes);
         const sql: string = format("UPDATE sub_aspects SET sub_aspect_name = %L, mistakes = %L WHERE subaspect_id = %L", 
             newData.name, newData.mistakes,
             subAspectID);
-        return await query(sql);
+        
+        const returnVal = await query(sql);
+            
+        const paramID = parseInt(oldData.parameter_id);
+        const retrieveParamData = await getGradingParamByIDService(paramID);
+        const oldParamData = retrieveParamData?.rows[0];
+        const newTotalMistakesInParam = await totalMistakesByParamService(paramID);
+        const newParamData: gradingParamsInterface = {chapterID: oldParamData.chapter_id, name: oldParamData.parameter_name, totalMistakes: newTotalMistakesInParam?.rows[0].total_mistakes as number};
+        await alterGradingParamService(paramID, newParamData);
+
+        return returnVal;
     }
     catch(error)
     {

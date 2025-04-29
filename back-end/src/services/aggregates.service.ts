@@ -1,17 +1,6 @@
 import { query } from "../db";
 import format from "pg-format";
 
-export const Service = async ()=>{
-    try
-    {
-
-    }
-    catch(error)
-    {
-        console.error("Error occured:", error);
-    }
-}
-
 export const totalMistakesByParamService = async (paramID: number )=>{
     try
     {
@@ -51,7 +40,7 @@ export const totalMistakesAllParamsAsResultService = async (chapterID: number)=>
 export const totalChapterScoreService = async (chapterID: number)=>{
     try
     {
-        const sql: string = format("SELECT 90-SUM(mistakes) AS chapter_score FROM sub_aspects INNER JOIN grading_parameters ON grading_parameters.parameter_id = sub_aspects.parameter_id WHERE chapter_id = %L", chapterID);
+        const sql: string = format("SELECT COALESCE(90-SUM(mistakes), 0) AS chapter_score FROM sub_aspects INNER JOIN grading_parameters ON grading_parameters.parameter_id = sub_aspects.parameter_id WHERE chapter_id = %L", chapterID);
         return await query(sql);
     }
     catch(error)

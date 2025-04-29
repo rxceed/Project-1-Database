@@ -43,7 +43,7 @@ export const getProjectByIDService = async (id: number)=>{
 export const insertNewProjectService = async (projectData: projectInterface)=>{
     try
     {
-        const sql: string = format("INSERT INTO projects(project_name, grading_date, grade, status) VALUES (%L, %L, %L, %L)", projectData.name, projectData.gradingDate, projectData.grade, projectData.status);
+        const sql: string = format("INSERT INTO projects(project_name) VALUES (%L)", projectData.name);
         return await query(sql);
     }
     catch(error)
@@ -63,12 +63,16 @@ export const alterProjectService = async (id: number, projectData: projectInterf
         if(!newData.gradingDate) newData.gradingDate = oldData.grading_date;
         if(!newData.grade) newData.grade = oldData.grade;
         if(!newData.status) newData.status = oldData.status;
+        if(!newData.finalScore) newData.finalScore = parseInt(oldData.final_score);
+        if(!newData.comment) newData.comment = oldData.grader_comment;
         const sql: string = format(
-            "UPDATE projects SET project_name = %L, grading_date = %L, grade = %L, status = %L WHERE project_id = %L", 
+            "UPDATE projects SET project_name = %L, grading_date = %L, grade = %L, status = %L, final_score = %L, grader_comment = %L WHERE project_id = %L", 
             newData.name,
             newData.gradingDate,
             newData.grade,
             newData.status,
+            newData.finalScore,
+            newData.comment,
             id);
         return await query(sql);
     }

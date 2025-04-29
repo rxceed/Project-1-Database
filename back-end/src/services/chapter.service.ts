@@ -1,6 +1,8 @@
 import { query } from "../db";
 import format from "pg-format";
-import { chapterInterface } from "../models";
+import { chapterInterface, projectInterface } from "../models";
+import { alterProjectService, getProjectByIDService } from "./project.service";
+import { finalScoreService } from "./aggregates.service";
 
 export const checkIfChapterExist = async (chapterID: number)=>{
     try
@@ -72,7 +74,19 @@ export const insertNewChapterService = async (chapterData: chapterInterface)=>{
             chapterData.name, 
             chapterData.weight
         )
-        return await query(sql);
+        const returnVal = await query(sql);
+
+        const projectID = chapterData.projectID;
+        const retrieveProjectData = await getProjectByIDService(projectID);
+        const oldProjectData = retrieveProjectData?.rows[0];
+        const newFinalScore = await finalScoreService(projectID);
+        let projectStatus: string;
+        if(newFinalScore as number >= 55) projectStatus = "LULUS";
+        else projectStatus = "TIDAK LULUS";
+        const newProjectData: projectInterface = {name: oldProjectData.project_name, gradingDate: oldProjectData.grading_date, grade: oldProjectData.grade, status: projectStatus, comment: oldProjectData.grader_comment, finalScore: newFinalScore as number};
+        const updateProject = await alterProjectService(projectID, newProjectData);
+        
+        return returnVal;
     }
     catch(error)
     {
@@ -88,9 +102,22 @@ export const alterChapterService = async (chapterID: number, chapterData: chapte
         const oldData = retrievedData?.rows[0];
         let newData: chapterInterface = {...chapterData};
         if(!newData.name) newData.name = oldData.chapter_name;
-        if(!newData.weight) newData.weight = oldData.chapter_weight;
-        const sql: string = format("UPDATE chapters SET chapter_name = %L, chapter_weight = %L WHERE chapter_id = %L", newData.name, newData.weight, chapterID);
-        return await query(sql);
+        if(!newData.weight) newData.weight = parseInt(oldData.chapter_weight);
+        if(!newData.chapterScore) newData.chapterScore = parseInt(oldData.chapter_score);
+        const sql: string = format("UPDATE chapters SET chapter_name = %L, chapter_weight = %L, chapter_score = %L WHERE chapter_id = %L", newData.name, newData.weight, newData.chapterScore, chapterID);
+        const returnVal = await query(sql);
+
+        const projectID = parseInt(oldData.project_id);
+        const retrieveProjectData = await getProjectByIDService(projectID);
+        const oldProjectData = retrieveProjectData?.rows[0];
+        const newFinalScore = await finalScoreService(projectID);
+        let projectStatus: string;
+        if(newFinalScore as number >= 55) projectStatus = "LULUS";
+        else projectStatus = "TIDAK LULUS";
+        const newProjectData: projectInterface = {name: oldProjectData.project_name, gradingDate: oldProjectData.grading_date, grade: oldProjectData.grade, status: projectStatus, comment: oldProjectData.grader_comment, finalScore: newFinalScore as number};
+        const updateProject = await alterProjectService(projectID, newProjectData);
+        
+        return returnVal;
     }
     catch(error)
     {

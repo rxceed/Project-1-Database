@@ -1,12 +1,16 @@
 import { getChapterByIDService, getChapterByID_and_ProjectIDService, getAllChaptersByProjectIDService, getAllChaptersService,
     insertNewChapterService, alterChapterService, deleteAllChaptersByProjectIDService, deleteChapterByIDService,
-    checkIfChapterExist
+    checkIfChapterExist,
+    getProjectByIDService,
+    finalScoreService,
+    alterProjectService
  } from "../services/";
 import { Request, Response, NextFunction } from "express";
 import { CustomError } from "../middlewares";
 import { chapterSchema } from "../utils/validators";
 import { checkIfProjectIDExist } from "../services";
-import { chapterInterface } from "../models";
+import { chapterInterface, projectInterface } from "../models";
+import { alterProject } from "./project.controller";
 
 export const getAllChapters = async (req: Request, res: Response, next: NextFunction)=>{
     try
@@ -63,13 +67,13 @@ export const getChapterByID_andOr_ProjectID = async (req: Request, res: Response
 export const insertNewChapter = async (req: Request, res: Response, next: NextFunction)=>{
     try
     {
-       const data: chapterInterface = req.body;
-       const {error, value} = chapterSchema.validate(data);
-       if(error) throw new CustomError(error.message, 400, error.stack);
-       if(!(await checkIfProjectIDExist(data.projectID))) throw new CustomError("parent project does not exist", 400);
-       const result = await insertNewChapterService(data);
-       if(!result) throw new CustomError("internal database error");
-       res.status(201).json({command: result.command, rows: result.rowCount});
+        const data: chapterInterface = req.body;
+        const {error, value} = chapterSchema.validate(data);
+        if(error) throw new CustomError(error.message, 400, error.stack);
+        if(!(await checkIfProjectIDExist(data.projectID))) throw new CustomError("parent project does not exist", 400);
+        const result = await insertNewChapterService(data);
+        if(!result) throw new CustomError("internal database error");
+        res.status(201).json({command: result.command, rows: result.rowCount});
     }
     catch(error)
     {

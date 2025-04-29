@@ -1,4 +1,5 @@
 export interface gradingParamsInterface{
     chapterID: number,
-    name: string
+    name: string,
+    totalMistakes: number
 }

@@ -32,11 +32,41 @@ export const dbSetup = async ()=>
     try 
     {
         return await pool.query(
-            "CREATE TABLE IF NOT EXISTS projects (project_id SERIAL PRIMARY KEY, project_name VARCHAR(255) NOT NULL, grading_date TIMESTAMPTZ, grade VARCHAR(32), status VARCHAR(255));"+" "+
-            "CREATE TABLE IF NOT EXISTS grades (grade VARCHAR(32) PRIMARY KEY, upper_limit INT, lower_limit INT);"+" "+
-            "CREATE TABLE IF NOT EXISTS chapters (chapter_id SERIAL PRIMARY KEY, project_id INTEGER NOT NULL, chapter_name VARCHAR(255) NOT NULL, chapter_weight INT NOT NULL, CONSTRAINT fk_project_id FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);"+" "+
-            "CREATE TABLE IF NOT EXISTS grading_parameters (parameter_id SERIAL PRIMARY KEY, chapter_id INTEGER NOT NULL, parameter_name VARCHAR(255) NOT NULL, CONSTRAINT fk_chapter_id FOREIGN KEY(chapter_id) REFERENCES chapters(chapter_id) ON DELETE CASCADE);"+" "+
-            "CREATE TABLE IF NOT EXISTS sub_aspects (subaspect_id SERIAL PRIMARY KEY, parameter_id INTEGER NOT NULL, sub_aspect_name VARCHAR(255) NOT NULL, mistakes INTEGER NOT NULL DEFAULT '0', CONSTRAINT fk_parameter_id FOREIGN KEY(parameter_id) REFERENCES grading_parameters(parameter_id) ON DELETE CASCADE);"
+            "CREATE TABLE IF NOT EXISTS grades (grade VARCHAR(32) PRIMARY KEY, upper_limit INT DEFAULT '90' NOT NULL, lower_limit INT DEFAULT '0' NOT NULL);"+" "+
+            "CREATE TABLE IF NOT EXISTS projects (project_id SERIAL PRIMARY KEY, project_name VARCHAR(255) NOT NULL, grading_date TIMESTAMPTZ DEFAULT NOW(), grade VARCHAR(32), status VARCHAR(255), final_score INT DEFAULT '0' NOT NULL, grader_comment TEXT, CONSTRAINT fk_grade FOREIGN KEY(grade) REFERENCES grades(grade) ON DELETE SET DEFAULT);"+" "+
+            "CREATE TABLE IF NOT EXISTS chapters (chapter_id SERIAL PRIMARY KEY, project_id INTEGER NOT NULL, chapter_name VARCHAR(255) NOT NULL, chapter_weight INT NOT NULL, chapter_score INT DEFAULT '0' NOT NULL, CONSTRAINT fk_project_id FOREIGN KEY(project_id) REFERENCES projects(project_id) ON DELETE CASCADE);"+" "+
+            "CREATE TABLE IF NOT EXISTS grading_parameters (parameter_id SERIAL PRIMARY KEY, chapter_id INTEGER NOT NULL, parameter_name VARCHAR(255) NOT NULL, total_mistakes INT DEFAULT '0' NOT NULL, CONSTRAINT fk_chapter_id FOREIGN KEY(chapter_id) REFERENCES chapters(chapter_id) ON DELETE CASCADE);"+" "+
+            "CREATE TABLE IF NOT EXISTS sub_aspects (subaspect_id SERIAL PRIMARY KEY, parameter_id INTEGER NOT NULL, sub_aspect_name VARCHAR(255) NOT NULL, mistakes INT DEFAULT '0' NOT NULL, CONSTRAINT fk_parameter_id FOREIGN KEY(parameter_id) REFERENCES grading_parameters(parameter_id) ON DELETE CASCADE);"+" "+
+            
+            "CREATE OR REPLACE FUNCTION update_project_grade_function()"+" "+
+            "RETURNS TRIGGER"+" "+
+            "AS $$"+" "+
+            "DECLARE new_grade VARCHAR(32); passing_score INT; score INT;"+" "+
+            "BEGIN"+" "+
+            "IF pg_trigger_depth() <> 1 THEN RETURN NEW; END IF;"+" "+
+            "SELECT grade INTO new_grade FROM grades WHERE NEW.final_score >= lower_limit AND NEW.final_score <= upper_limit;"+" "+
+            "SELECT 56 INTO passing_score; SELECT final_score INTO score FROM projects WHERE project_id = OLD.project_id;"+" "+
+            "IF score >= passing_score THEN UPDATE projects SET grade = new_grade, status = 'LULUS' WHERE project_id = OLD.project_id;"+" "+
+            "ELSE UPDATE projects SET grade = new_grade, status = 'TIDAK LULUS' WHERE project_id = OLD.project_id;"+" "+
+            "END IF; RETURN NEW;"+" "+
+            "END; $$ LANGUAGE plpgsql;"+" "+
+
+            "CREATE OR REPLACE FUNCTION update_grading_date_function()"+" "+
+            "RETURNS TRIGGER"+" "+
+            "AS $$"+" "+
+            "BEGIN"+" "+
+            "IF pg_trigger_depth() <> 1 THEN RETURN NEW; END IF;"+" "+
+            "UPDATE projects SET grading_date = NOW() WHERE project_id = OLD.project_id; RETURN NEW;"+" "+
+            "END; $$ LANGUAGE plpgsql;"+" "+
+
+            "CREATE OR REPLACE TRIGGER update_project_grade_trigger"+" "+
+            "AFTER UPDATE ON projects FOR EACH ROW EXECUTE FUNCTION update_project_grade_function();"+" "+
+
+            "CREATE OR REPLACE TRIGGER update_grading_date_trigger"+" "+
+            "AFTER UPDATE ON projects FOR EACH ROW EXECUTE FUNCTION update_grading_date_function();"+" "+
+
+            "CREATE OR REPLACE TRIGGER update_project_grade_when_grades_is_modified_trigger"+" "+
+            "AFTER UPDATE ON grades FOR EACH ROW EXECUTE FUNCTION update_project_grade_function();"
         );
     } 
     catch (error) {

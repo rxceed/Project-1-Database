@@ -1,7 +1,9 @@
 import {query} from "../db";
 import format from "pg-format";
 import { gradingParamsSchema } from "../utils/validators";
-import { gradingParamsInterface } from "../models";
+import { chapterInterface, gradingParamsInterface } from "../models";
+import { alterChapterService, getChapterByIDService } from "./chapter.service";
+import { totalChapterScoreService } from "./aggregates.service";
 
 export const checkIfGradingParamExists = async (paramID: number)=>{
     try
@@ -78,7 +80,17 @@ export const insertGradingParamService = async (paramData: gradingParamsInterfac
         const sql: string = format("INSERT INTO grading_parameters(chapter_id, parameter_name) VALUES (%L, %L)", 
             paramData.chapterID, 
             paramData.name);
-        return await query(sql);
+
+        const returnVal = await query(sql);
+        
+        const chapterID = paramData.chapterID;
+        const retrieveChapterData = await getChapterByIDService(chapterID);
+        const oldChapterData = retrieveChapterData?.rows[0];
+        const newChapterScore = await totalChapterScoreService(chapterID);
+        const newChapterData: chapterInterface = {projectID: oldChapterData.project_id, name: oldChapterData.chapter_name, weight: oldChapterData.chapter_weight, chapterScore: newChapterScore?.rows[0].chapter_score as number};
+        await alterChapterService(chapterID, newChapterData);
+        
+        return returnVal;
     }
     catch(error)
     {
@@ -94,8 +106,18 @@ export const alterGradingParamService = async (paramID: number, paramData: gradi
         const oldData = retrievedData?.rows[0];
         let newData: gradingParamsInterface = {...paramData};
         if(!newData.name) newData.name = oldData.parameter_name;
-        const sql: string = format("UPDATE grading_parameters SET parameter_name = %L WHERE parameter_id = %L", newData.name, paramID);
-        return await query(sql);
+        if(!newData.totalMistakes) newData.totalMistakes = parseInt(oldData.total_mistakes);
+        const sql: string = format("UPDATE grading_parameters SET parameter_name = %L, total_mistakes = %L WHERE parameter_id = %L", newData.name, newData.totalMistakes, paramID);
+        const returnVal = await query(sql);
+
+        const chapterID = parseInt(oldData.chapter_id);
+        const retrieveChapterData = await getChapterByIDService(chapterID);
+        const oldChapterData = retrieveChapterData?.rows[0];
+        const newChapterScore = await totalChapterScoreService(chapterID);
+        const newChapterData: chapterInterface = {projectID: oldChapterData.project_id, name: oldChapterData.chapter_name, weight: oldChapterData.chapter_weight, chapterScore: newChapterScore?.rows[0].chapter_score as number};
+        await alterChapterService(chapterID, newChapterData);
+
+        return returnVal;
     }
     catch(error)
     {

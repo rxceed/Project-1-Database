@@ -2,10 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import { getAllGradingParamsService, getAllGradingParamsByChapterIDService, getGradingParamByIDService, getGradingParameterByID_and_ChapterIDService,
     insertGradingParamService, alterGradingParamService, deleteAllGradingParamsByChapterIDService, deleteGradingParamByIDService,
     checkIfGradingParamExists,
-    checkIfChapterExist
+    checkIfChapterExist,
+    getChapterByIDService,
+    totalChapterScoreService,
+    alterChapterService
  } from "../services";
 import { gradingParamsSchema } from "../utils/validators";
-import { gradingParamsInterface } from "../models";
+import { chapterInterface, gradingParamsInterface } from "../models";
 import { CustomError } from "../middlewares";
 
 export const getAllGradingParams = async (req: Request, res: Response, next: NextFunction)=>{
