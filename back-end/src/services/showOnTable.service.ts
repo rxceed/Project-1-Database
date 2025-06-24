@@ -153,7 +153,7 @@ export const showOnTableService = async ()=>{
                 }
                 newFormData.scores.push(gradeData);
             }
-            const sumChapterWeight = ()=>{
+            const sumChapterWeight = async ()=>{
                 let totalWeight = 0;
                 for(let i = 0; i < newFormData.chapters.length; i++)
                 {
@@ -161,7 +161,7 @@ export const showOnTableService = async ()=>{
                 }
                 return totalWeight;
             }
-            const sumMistakes = ()=>{
+            const sumMistakes = async ()=>{
                 let totalMistakes = 0;
                 for(let i = 0; i < newFormData.chapters.length; i++)
                 {
@@ -172,8 +172,8 @@ export const showOnTableService = async ()=>{
                 }
                 return totalMistakes;
             }
-            newFormData.totalChapterWeight = sumChapterWeight();
-            newFormData.totalMistakes = sumMistakes();
+            newFormData.totalChapterWeight = await sumChapterWeight();
+            newFormData.totalMistakes = await sumMistakes();
             formData.push(newFormData);
         }
         return formData;

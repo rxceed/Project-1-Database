@@ -82,6 +82,36 @@ export const alterProjectService = async (id: number, projectData: projectInterf
     }
 }
 
+export const syncProjectService = async ()=>{
+    try
+    {
+        //NOTE: Update query untuk mentrigger trigger function antara grade scoring dan predikat project untuk menghindari
+        const retriveDataSQL: string = format("SELECT * FROM projects");
+        const retrieveResult = await query(retriveDataSQL);
+        if(!retrieveResult) return null;
+        const oldData = retrieveResult.rows;
+        const dataLength = oldData.length;
+        for(let i = 0; i < dataLength; i++)
+        {
+            const sql: string = format(
+            "UPDATE projects SET project_name = %L, grading_date = %L, grade = %L, status = %L, final_score = %L, grader_comment = %L WHERE project_id = %L", 
+            oldData[i].project_name,
+            oldData[i].grading_date,
+            oldData[i].grade,
+            oldData[i].status,
+            oldData[i].final_score,
+            oldData[i].grader_comment,
+            oldData[i].project_id);
+            await query(sql);
+        }
+        return true;
+    }
+    catch(error)
+    {
+        console.error("Error occured:", error);
+    }
+}
+
 export const deleteProjectByIDService = async (id: number)=>{
     try
     {

@@ -107,7 +107,7 @@ export const alterSubAspectService = async (subAspectID: number, subAspectData: 
         const oldData = retrievedData?.rows[0];
         let newData = {...subAspectData};
         if(!newData.name) newData.name = oldData.sub_aspect_name;
-        if(!newData.mistakes) newData.mistakes = parseInt(oldData.mistakes);
+        if(!newData.mistakes && newData.mistakes !== 0) newData.mistakes = parseInt(oldData.mistakes);
         const sql: string = format("UPDATE sub_aspects SET sub_aspect_name = %L, mistakes = %L WHERE subaspect_id = %L", 
             newData.name, newData.mistakes,
             subAspectID);
@@ -133,6 +133,7 @@ export const deleteAllSubAspectsByParamIDService = async (paramID: number)=>{
     try
     {
         const sql: string = format("DELETE FROM sub_aspects WHERE parameter_id = %L", paramID);
+        const executeQuery = await query(sql);
 
         const retrieveParamData = await getGradingParamByIDService(paramID);
         const oldParamData = retrieveParamData?.rows[0];
@@ -140,7 +141,7 @@ export const deleteAllSubAspectsByParamIDService = async (paramID: number)=>{
         const newParamData: gradingParamsInterface = {chapterID: oldParamData.chapter_id, name: oldParamData.parameter_name, totalMistakes: newTotalMistakesInParam?.rows[0].total_mistakes as number};
         await alterGradingParamService(paramID, newParamData);
 
-        return await query(sql);
+        return executeQuery;
     }
     catch(error)
     {
@@ -156,6 +157,7 @@ export const deleteSubAspectByIDService = async (subAspectID: number)=>{
         const oldData = retrievedData?.rows[0];
 
         const sql: string = format("DELETE FROM sub_aspects WHERE subaspect_id = %L", subAspectID);
+        const executeQuery = await query(sql);
         
         const paramID = parseInt(oldData.parameter_id);
         const retrieveParamData = await getGradingParamByIDService(paramID);
@@ -164,7 +166,7 @@ export const deleteSubAspectByIDService = async (subAspectID: number)=>{
         const newParamData: gradingParamsInterface = {chapterID: oldParamData.chapter_id, name: oldParamData.parameter_name, totalMistakes: newTotalMistakesInParam?.rows[0].total_mistakes as number};
         await alterGradingParamService(paramID, newParamData);
 
-        return await query(sql);
+        return executeQuery;
     }
     catch(error)
     {

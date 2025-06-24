@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getAllProjectsService, getProjectByIDService, insertNewProjectService, alterProjectService, deleteProjectByIDService, deleteAllProjectsService, checkIfProjectIDExist } from "../services";
+import { getAllProjectsService, getProjectByIDService, syncProjectService, insertNewProjectService, alterProjectService, deleteProjectByIDService, deleteAllProjectsService, checkIfProjectIDExist } from "../services";
 import { projectInterface } from "../models";
 import { projectSchema } from "../utils/validators";
 import { CustomError } from "../middlewares";
@@ -61,6 +61,19 @@ export const alterProject = async (req: Request, res: Response, next: NextFuncti
         const result = await alterProjectService(id, data);
         if(!result) throw new CustomError("internal database error");
         res.status(201).json({Command: result?.command, Rows: result?.rowCount});
+    }
+    catch(error)
+    {
+        next(error);
+    }
+}
+
+export const syncProject = async (req: Request, res: Response, next: NextFunction)=>{
+    try
+    {
+        const result = await syncProjectService();
+        if(!result) throw new CustomError("internal database error");
+        res.status(201);
     }
     catch(error)
     {
