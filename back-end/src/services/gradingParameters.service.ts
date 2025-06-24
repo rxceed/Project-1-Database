@@ -28,7 +28,7 @@ export const checkIfGradingParamExists = async (paramID: number)=>{
 export const getAllGradingParamsService = async ()=>{
     try
     {
-        const sql: string = format("SELECT * FROM grading_parameters");
+        const sql: string = format("SELECT * FROM grading_parameters ORDER BY parameter_id ASC");
         return await query(sql);
     }
     catch(error)
@@ -52,7 +52,7 @@ export const getGradingParamByIDService = async (paramID: number)=>{
 export const getAllGradingParamsByChapterIDService = async (chapterID: number)=>{
     try
     {
-        const sql: string = format("SELECT * FROM grading_parameters WHERE chapter_id = %L", chapterID);
+        const sql: string = format("SELECT * FROM grading_parameters WHERE chapter_id = %L ORDER BY parameter_id ASC", chapterID);
         return await query(sql);
     }
     catch(error)
@@ -129,6 +129,12 @@ export const deleteAllGradingParamsByChapterIDService = async (chapterID: number
     try
     {
         const sql: string = format("DELETE FROM grading_parameters WHERE chapter_id = %L", chapterID);
+
+        const retrieveChapterData = await getChapterByIDService(chapterID);
+        const oldChapterData = retrieveChapterData?.rows[0];
+        const newChapterScore = await totalChapterScoreService(chapterID);
+        const newChapterData: chapterInterface = {projectID: oldChapterData.project_id, name: oldChapterData.chapter_name, weight: oldChapterData.chapter_weight, chapterScore: newChapterScore?.rows[0].chapter_score as number};
+        await alterChapterService(chapterID, newChapterData);
         return await query(sql);
     }
     catch(error)
@@ -140,7 +146,18 @@ export const deleteAllGradingParamsByChapterIDService = async (chapterID: number
 export const deleteGradingParamByIDService = async (paramID: number)=>{
     try
     {
+        const retrieveDataSQL: string = format("SELECT * FROM grading_parameters WHERE parameter_id = %L", paramID);
+        const retrievedData = await query(retrieveDataSQL);
+        const oldData = retrievedData?.rows[0];
+
         const sql: string = format("DELETE FROM grading_parameters WHERE parameter_id = %L", paramID);
+
+        const chapterID = parseInt(oldData.chapter_id);
+        const retrieveChapterData = await getChapterByIDService(chapterID);
+        const oldChapterData = retrieveChapterData?.rows[0];
+        const newChapterScore = await totalChapterScoreService(chapterID);
+        const newChapterData: chapterInterface = {projectID: oldChapterData.project_id, name: oldChapterData.chapter_name, weight: oldChapterData.chapter_weight, chapterScore: newChapterScore?.rows[0].chapter_score as number};
+        await alterChapterService(chapterID, newChapterData);
         return await query(sql);
     }
     catch(error)

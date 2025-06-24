@@ -18,7 +18,7 @@ export const checkIfGradeExists = async (grade: string)=>{
 export const getAllGradesService = async () =>{
     try
     {
-        const sql: string = format("SELECT * FROM grades");
+        const sql: string = format("SELECT * FROM grades ORDER BY upper_limit DESC");
         return await query(sql);
     }
     catch(error)

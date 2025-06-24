@@ -27,7 +27,7 @@ export const checkIfSubAspectExists = async (subASpectID: number)=>{
 export const getAllSubAspectsService = async ()=>{
     try
     {
-        const sql: string = format("SELECT * FROM sub_aspects");
+        const sql: string = format("SELECT * FROM sub_aspects ORDER BY subaspect_id ASC");
         return await query(sql);
     }
     catch(error)
@@ -39,7 +39,7 @@ export const getAllSubAspectsService = async ()=>{
 export const getAllSubAspectsByParamIDService = async (paramID: number)=>{
     try
     {
-        const sql: string = format("SELECT * FROM sub_aspects WHERE parameter_id = %L", paramID);
+        const sql: string = format("SELECT * FROM sub_aspects WHERE parameter_id = %L ORDER BY subaspect_id ASC", paramID);
         return await query(sql);
     }
     catch(error)
@@ -133,6 +133,13 @@ export const deleteAllSubAspectsByParamIDService = async (paramID: number)=>{
     try
     {
         const sql: string = format("DELETE FROM sub_aspects WHERE parameter_id = %L", paramID);
+
+        const retrieveParamData = await getGradingParamByIDService(paramID);
+        const oldParamData = retrieveParamData?.rows[0];
+        const newTotalMistakesInParam = await totalMistakesByParamService(paramID);
+        const newParamData: gradingParamsInterface = {chapterID: oldParamData.chapter_id, name: oldParamData.parameter_name, totalMistakes: newTotalMistakesInParam?.rows[0].total_mistakes as number};
+        await alterGradingParamService(paramID, newParamData);
+
         return await query(sql);
     }
     catch(error)
@@ -144,7 +151,19 @@ export const deleteAllSubAspectsByParamIDService = async (paramID: number)=>{
 export const deleteSubAspectByIDService = async (subAspectID: number)=>{
     try
     {
+        const retrieveDataSQL: string = format("SELECT * FROM sub_aspects WHERE subaspect_id = %L", subAspectID);
+        const retrievedData = await query(retrieveDataSQL);
+        const oldData = retrievedData?.rows[0];
+
         const sql: string = format("DELETE FROM sub_aspects WHERE subaspect_id = %L", subAspectID);
+        
+        const paramID = parseInt(oldData.parameter_id);
+        const retrieveParamData = await getGradingParamByIDService(paramID);
+        const oldParamData = retrieveParamData?.rows[0];
+        const newTotalMistakesInParam = await totalMistakesByParamService(paramID);
+        const newParamData: gradingParamsInterface = {chapterID: oldParamData.chapter_id, name: oldParamData.parameter_name, totalMistakes: newTotalMistakesInParam?.rows[0].total_mistakes as number};
+        await alterGradingParamService(paramID, newParamData);
+
         return await query(sql);
     }
     catch(error)

@@ -18,7 +18,7 @@ export const checkIfProjectIDExist = async (id: number)=>{
 export const getAllProjectsService = async () =>{
     try
     {
-        const sql: string = format("SELECT * FROM projects");
+        const sql: string = format("SELECT * FROM projects ORDER BY project_id ASC");
         return await query(sql);
 
     }
@@ -31,7 +31,7 @@ export const getAllProjectsService = async () =>{
 export const getProjectByIDService = async (id: number)=>{
     try
     {
-        const sql: string = format("SELECT * FROM projects WHERE project_id = %L", id);
+        const sql: string = format("SELECT * FROM projects WHERE project_id = %L ORDER BY project_id ASC", id);
         return await query(sql);
     }
     catch(error)

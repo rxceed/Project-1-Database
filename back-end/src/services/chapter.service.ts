@@ -21,7 +21,7 @@ export const checkIfChapterExist = async (chapterID: number)=>{
 export const getAllChaptersService = async ()=>{
     try
     {
-        const sql: string = format("SELECT * FROM chapters");
+        const sql: string = format("SELECT * FROM chapters ORDER BY chapter_id ASC");
         return await query(sql);
     }
     catch(error)
@@ -33,7 +33,7 @@ export const getAllChaptersService = async ()=>{
 export const getAllChaptersByProjectIDService = async (projectID: number)=>{
     try
     {
-        const sql: string = format("SELECT * FROM chapters WHERE project_id = %L", projectID);
+        const sql: string = format("SELECT * FROM chapters WHERE project_id = %L ORDER BY chapter_id ASC", projectID);
         return await query(sql);
     }
     catch(error)
@@ -80,10 +80,11 @@ export const insertNewChapterService = async (chapterData: chapterInterface)=>{
         const retrieveProjectData = await getProjectByIDService(projectID);
         const oldProjectData = retrieveProjectData?.rows[0];
         const newFinalScore = await finalScoreService(projectID);
+        const finalScoreRounded = Math.round(newFinalScore as number);
         let projectStatus: string;
         if(newFinalScore as number >= 55) projectStatus = "LULUS";
         else projectStatus = "TIDAK LULUS";
-        const newProjectData: projectInterface = {name: oldProjectData.project_name, gradingDate: oldProjectData.grading_date, grade: oldProjectData.grade, status: projectStatus, comment: oldProjectData.grader_comment, finalScore: newFinalScore as number};
+        const newProjectData: projectInterface = {name: oldProjectData.project_name, gradingDate: oldProjectData.grading_date, grade: oldProjectData.grade, status: projectStatus, comment: oldProjectData.grader_comment, finalScore: finalScoreRounded as number};
         const updateProject = await alterProjectService(projectID, newProjectData);
         
         return returnVal;
@@ -111,10 +112,11 @@ export const alterChapterService = async (chapterID: number, chapterData: chapte
         const retrieveProjectData = await getProjectByIDService(projectID);
         const oldProjectData = retrieveProjectData?.rows[0];
         const newFinalScore = await finalScoreService(projectID);
+        const finalScoreRounded = Math.round(newFinalScore as number);
         let projectStatus: string;
         if(newFinalScore as number >= 55) projectStatus = "LULUS";
         else projectStatus = "TIDAK LULUS";
-        const newProjectData: projectInterface = {name: oldProjectData.project_name, gradingDate: oldProjectData.grading_date, grade: oldProjectData.grade, status: projectStatus, comment: oldProjectData.grader_comment, finalScore: newFinalScore as number};
+        const newProjectData: projectInterface = {name: oldProjectData.project_name, gradingDate: oldProjectData.grading_date, grade: oldProjectData.grade, status: projectStatus, comment: oldProjectData.grader_comment, finalScore: finalScoreRounded as number};
         const updateProject = await alterProjectService(projectID, newProjectData);
         
         return returnVal;
@@ -129,6 +131,16 @@ export const deleteAllChaptersByProjectIDService = async (projectID: number)=>{
     try
     {
         const sql: string = format("DELETE FROM chapters WHERE project_id = %L", projectID);
+
+        const retrieveProjectData = await getProjectByIDService(projectID);
+        const oldProjectData = retrieveProjectData?.rows[0];
+        const newFinalScore = await finalScoreService(projectID);
+        const finalScoreRounded = Math.round(newFinalScore as number);
+        let projectStatus: string;
+        if(newFinalScore as number >= 55) projectStatus = "LULUS";
+        else projectStatus = "TIDAK LULUS";
+        const newProjectData: projectInterface = {name: oldProjectData.project_name, gradingDate: oldProjectData.grading_date, grade: oldProjectData.grade, status: projectStatus, comment: oldProjectData.grader_comment, finalScore: finalScoreRounded as number};
+        const updateProject = await alterProjectService(projectID, newProjectData);
         return await query(sql);
     }
     catch(error)
@@ -140,7 +152,22 @@ export const deleteAllChaptersByProjectIDService = async (projectID: number)=>{
 export const deleteChapterByIDService = async (chapterID: number)=>{
     try
     {
+        const retrieveDataSQL: string = format("SELECT * FROM chapters WHERE chapter_id = %L", chapterID);
+        const retrievedData = await query(retrieveDataSQL);
+        const oldData = retrievedData?.rows[0];
+
         const sql: string = format("DELETE FROM chapters WHERE chapter_id = %L", chapterID);
+        
+        const projectID = parseInt(oldData.project_id);
+        const retrieveProjectData = await getProjectByIDService(projectID);
+        const oldProjectData = retrieveProjectData?.rows[0];
+        const newFinalScore = await finalScoreService(projectID);
+        const finalScoreRounded = Math.round(newFinalScore as number);
+        let projectStatus: string;
+        if(newFinalScore as number >= 55) projectStatus = "LULUS";
+        else projectStatus = "TIDAK LULUS";
+        const newProjectData: projectInterface = {name: oldProjectData.project_name, gradingDate: oldProjectData.grading_date, grade: oldProjectData.grade, status: projectStatus, comment: oldProjectData.grader_comment, finalScore: finalScoreRounded as number};
+        const updateProject = await alterProjectService(projectID, newProjectData);
         return await query(sql);
     }
     catch(error)

@@ -113,7 +113,6 @@ export const deleteSubAspectsByID = async (req: Request, res: Response, next: Ne
     try
     {
         const subAspectID = parseInt(req.query.sub_aspect_id as string);
-        if(!(await checkIfGradingParamExists(subAspectID))) throw new CustomError("sub aspect does not exist", 404);
         const result = await deleteSubAspectByIDService(subAspectID);
         if(!result) throw new CustomError("internal database error");
         res.status(200).json({command: result?.command, rows: result?.rowCount})
